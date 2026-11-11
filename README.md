@@ -57,6 +57,11 @@ node test/audit.mjs       # parity audit: zero-network, round-trips, GIF
 
 Playwright is a devDependency (audit harness only) — the app itself is a single HTML file with zero dependencies.
 
+Tests run in CI on every push (`.github/workflows/test.yml`). The PlantUML test uses `fixtures/sample-attack-path.puml`, a synthetic water-plant scenario: every site, device and address in it is invented.
+
 ## License
 
 MIT
+
+<!-- ca-tracked-link -->
+[cyberautomations.com](https://cyberautomations.com/?utm_source=github&utm_medium=readme&utm_campaign=otdraw)

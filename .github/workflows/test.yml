@@ -1,0 +1,18 @@
+name: test
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Config and CMDB ingest fixtures
+        run: node test/run-tests.js
+      - name: PlantUML parse and round trip
+        run: node tests/test-puml.mjs

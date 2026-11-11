@@ -1,0 +1,87 @@
+@startuml
+' ============================================================================
+' Synthetic sample: water treatment plant, VPN assumed-breach attack path
+' Every site, device, address and plan name here is invented for testing.
+' Colors:  red solid = live emulation (read-only at target)
+'          red thick = compromise / pivot / exfil
+'          orange dotted = lab or maintenance window only
+'          gray dotted  = tabletop only, never live
+'          green dotted = conduit contract (as designed)
+' ============================================================================
+skinparam linetype polyline
+skinparam nodesep 45
+skinparam ranksep 60
+skinparam defaultTextAlignment center
+skinparam packageStyle rectangle
+skinparam ArrowFontSize 9
+
+title <b>Example Water Plant: VPN Assumed-Breach Attack Path</b>\n<size:11>Sample scenario "QUIET RIVER" over an IEC 62443 zone model</size>
+
+rectangle "<b>QUIET RIVER</b>\nRed team emulation\nPhases P1 to P6" as APT #FFCDD2
+rectangle "<b>Remote access VPN</b>\n<b>ASSUMED BREACH</b>\n(valid creds, no exploit)" as VPN #FFCDD2
+
+package "Zone 0: Perimeter" #F0F4F8 {
+  rectangle "ISP uplink\nAS 64512" as WAN #FFF9C4
+  rectangle "EDGE-RTR-01\nedge router" as RTR #FFF9C4
+  rectangle "FW-PAIR\nIT and OT contexts" as FW #FFF9C4
+  rectangle "VPN-GW-01\nremote access" as VPNGW #FFF9C4
+  cloud "Cloud tenant\n(variant B)" as CLOUD #FFE0B2
+}
+
+package "Zone 1: Enterprise IT" #F0F4F8 {
+  rectangle "AD-DC-01\ndomain controller" as AD #E3F2FD
+  rectangle "JUMP-01\njump host" as JUMP #E3F2FD
+  database "IT file share" as SHARE #E3F2FD
+}
+
+package "Zone 2: OT DMZ" #F0F4F8 {
+  rectangle "HIST-01\nhistorian mirror" as HIST #E8F5E9
+  rectangle "PATCH-01\npatch server" as PATCH #E8F5E9
+  rectangle "RDG-01\nremote desktop gateway" as RDG #E8F5E9
+  rectangle "AV-01\nantivirus relay" as AV #E8F5E9
+}
+
+package "Zone 3: Site operations" #F0F4F8 {
+  rectangle "SCADA-01\nSCADA server" as SCADA #FFF3E0
+  rectangle "EWS-01\nengineering workstation" as EWS #FFF3E0
+  rectangle "HMI-01\noperator HMI" as HMI #FFF3E0
+  database "HIST-02\nsite historian" as HIST2 #FFF3E0
+}
+
+package "Zone 4: Control" #F0F4F8 {
+  rectangle "PLC-01\nfilter control" as PLC #FCE4EC
+}
+
+package "Zone 5: Safety" #F0F4F8 {
+  rectangle "SIS-01\nsafety controller" as SIS #FCE4EC
+}
+
+APT --> VPN : P1 phish creds
+VPN --> VPNGW : P1 login
+WAN --> RTR : uplink
+RTR --> FW : Po10
+VPNGW --> FW : Po11
+FW --> CLOUD : IPsec
+FW --> AD : LDAP 389
+FW --> JUMP : RDP 3389
+VPNGW --> JUMP : P2 RDP
+JUMP --> AD : P2 enum
+JUMP --> SHARE : P2 collect
+AD --> SHARE : SMB 445
+JUMP --> RDG : P3 pivot
+FW --> HIST : OPC UA 4840
+FW --> PATCH : HTTPS 443
+FW --> AV : HTTPS 443
+RDG --> EWS : P3 RDP
+PATCH --> SCADA : WSUS 8530
+AV --> SCADA : updates
+HIST --> HIST2 : replication
+HIST2 --> SCADA : SQL 1433
+EWS --> SCADA : P4 config pull
+SCADA --> HMI : display
+EWS --> PLC : P5 Modbus 502
+SCADA --> PLC : Modbus 502
+HMI --> PLC : setpoints
+PLC --> SIS : safety bus
+EWS --> SHARE : P6 exfil
+@enduml

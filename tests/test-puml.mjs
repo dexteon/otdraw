@@ -44,9 +44,16 @@ const out = {};
 out.pumlParse = ctx.pumlParse;
 out.pumlRoundTrip = ctx.pumlRoundTrip;
 
-// --- Test 1: the sample fixture ---
+// --- Test 1: the synthetic attack-path fixture (6 zones, 20 nodes, 28 edges) ---
 const puml = readFileSync('fixtures/sample-attack-path.puml', 'utf8');
 const m = ctx.pumlParse(puml);
+const failures = [];
+const expect = (cond, msg) => { if (!cond) failures.push(msg); };
+expect(m.zones.length === 6, 'expected 6 zones, got ' + m.zones.length);
+expect(m.nodes.length === 20, 'expected 20 nodes, got ' + m.nodes.length);
+expect(m.edges.length === 28, 'expected 28 edges, got ' + m.edges.length);
+expect(JSON.stringify(m.zones.map(z => z.nodes.length)) === '[5,3,4,4,1,1]', 'zone member counts ' + JSON.stringify(m.zones.map(z => z.nodes.length)));
+process.on('exit', () => { if (failures.length) { console.error('\nFAILED:\n  ' + failures.join('\n  ')); process.exitCode = 1; } else console.log('\nall puml assertions passed'); });
 console.log('=== FIXTURE PARSE ===');
 console.log('zones:', m.zones.length, 'nodes:', m.nodes.length, 'edges:', m.edges.length, 'warnings:', m.warnings.length);
 m.zones.forEach(z => console.log('  zone:', z.label, '· members:', z.nodes.length));
