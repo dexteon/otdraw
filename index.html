@@ -1417,10 +1417,6 @@ $('#jClose').onclick=()=>$('#journey').style.display='none';
 $('#pjPrev').onclick=pjPrev;
 $('#pjNext').onclick=pjNext;
 $('#pjExit').onclick=exitPresent;
-/* ===================== PNG (basic, Phase 2 replaces with proper exporter) ===================== */
-$('#btnPng').onclick=()=>{
-  toast('PNG export arrives in Phase 2');
-};
 /* ===================== boot ===================== */
 buildPalette();
 buildExamplesMenu();
@@ -1631,8 +1627,7 @@ async function exportGIF(){
   }catch(e){console.error('GIF export failed',e);toast('GIF export failed');}
   finally{sel=savedSel;renderAll();gifBusy=false;}
 }
-/* export menu wiring */
-$('#btnPng').onclick=exportPNG;
+/* export menu wiring: #btnPng opens this menu; PNG export is the "PNG (2x)" item */
 function buildExportMenu(){
   const items=[
     {label:'SVG (vector)',fn:exportSVG},
